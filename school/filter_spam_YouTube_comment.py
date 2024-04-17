@@ -59,6 +59,22 @@ print("----------------------------")
 print("New shape: ", dtm.shape)
 print("Feature names: ", count_vectorizer.get_feature_names_out())
 
+
+# Data distribution 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+class_counts = df['CLASS'].value_counts()
+
+plt.figure(figsize=(8, 6))
+sns.barplot(x=class_counts.index, y=class_counts.values)
+plt.title('Distribution of Comments')
+plt.xlabel('Class')
+plt.ylabel('Number of Comments')
+plt.xticks(ticks=[0, 1], labels=['Non-spam', 'Spam']) 
+plt.show()
+
+
 #Part 3 - Model training
 from sklearn.feature_extraction.text import TfidfTransformer
 
@@ -67,6 +83,22 @@ tfidf_transformer = TfidfTransformer()
 tfidf = tfidf_transformer.fit_transform(dtm)
 print("----------------------------")
 print("TF-IDF Matrix Shape: ", tfidf.shape)
+
+import numpy as np
+
+tfidf_df = pd.DataFrame(tfidf.toarray(), columns=count_vectorizer.get_feature_names_out())
+avg_tfidf = tfidf_df.mean().sort_values(ascending=False).head(20)
+
+plt.figure(figsize=(10,8))
+sns.barplot(x=avg_tfidf.values, y=avg_tfidf.index, palette='coolwarm')
+plt.title('Top 20 Terms by Average TF-IDF Score')
+plt.xlabel('Average TF-IDF Score')
+plt.ylabel('Terms')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
+
+
 
 # 6. Use pandas.sample to shuffle the dataset, set frac =1
 df_shuffled = df.sample(frac=1, random_state=RANDOM_SEED).reset_index(drop=True)
@@ -108,6 +140,18 @@ conf_matrix = confusion_matrix(y_test, y_pred)
 print("----------------------------")
 print("Confusion Matrix: ")
 print(conf_matrix)
+
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+labels=['Non-spam','spam'] # 0 = Non-spam, 1 = Spam
+plt.figure(figsize=(8,6))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='Blues', cbar=False, xticklabels=labels, yticklabels=labels)
+plt.title('Confusion Matrix')
+plt.xlabel('Predicted Values')
+plt.ylabel('Actual Values')
+plt.show()
+
 print("----------------------------")
 accuracy = accuracy_score(y_test, y_pred)
 print("Accuracy: {:.2f}".format(accuracy))
@@ -153,3 +197,4 @@ category_map = { 0 : 'Non-spam', 1 : 'Spam '}
 for comment, category in zip(new_comments, new_predictions):
     print('\nComment:', comment, '\nPredicted category:', \
             category_map[category])
+
